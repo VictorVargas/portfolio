@@ -54,7 +54,7 @@ src/
 
 ### Fase 3: Integrar chat widget (1 día)
 
-El chat se integra con [`../chat-bot/`](../chat-bot/) (otro proyecto del workspace).
+El chat se integra con [`../rony-chat-bot/`](../rony-chat-bot/) (otro proyecto del workspace).
 
 #### 3.1 Instalar dependencia
 
@@ -87,11 +87,11 @@ export const POST: APIRoute = async ({ request }) => {
 
 #### 3.3 Crear React component
 
-Ver implementación completa en [`../chat-bot/docs/architecture.md`](../chat-bot/docs/architecture.md) §5.3. Copia manualmente el bloque de código TypeScript de esa sección a:
+Ver implementación completa en [`../rony-rony-chat-bot/docs/architecture.md`](../rony-rony-chat-bot/docs/architecture.md) §5.3. Copia manualmente el bloque de código TypeScript de esa sección a:
 
 ```bash
 mkdir -p src/components
-# Crear src/components/Chat.tsx con el contenido de §5.3 de chat-bot/docs/architecture.md
+# Crear src/components/Chat.tsx con el contenido de §5.3 de rony-chat-bot/docs/architecture.md
 ```
 
 #### 3.4 Usar en página
@@ -165,7 +165,7 @@ Cuando definas el sistema visual, documéntalo aquí. Contenido típico:
 - Button (primary, secondary, ghost)
 - Card (con borde sutil, hover effect)
 - Tag (para tech stack)
-- ChatWidget (ver ../chat-bot/docs/architecture.md §5.3)
+- ChatWidget (ver ../rony-rony-chat-bot/docs/architecture.md §5.3)
 
 ## Tokens (para Tailwind config)
 [ejemplo de extension del theme de Tailwind]
@@ -176,7 +176,7 @@ Cuando definas el sistema visual, documéntalo aquí. Contenido típico:
 - [Astro docs](https://docs.astro.build)
 - [Astro + React integration](https://docs.astro.build/en/guides/integrations-guide/react/)
 - [TailwindCSS con Astro](https://docs.astro.build/en/guides/integrations-guide/tailwind/)
-- [Chat-bot architecture doc](../chat-bot/docs/architecture.md) — Integración detallada
+- [Chat-bot architecture doc](../rony-rony-chat-bot/docs/architecture.md) — Integración detallada
 
 ## 📄 Licencia
 
@@ -184,6 +184,6 @@ MIT — ver [`LICENSE`](./LICENSE).
 
 ## 🔗 Proyectos relacionados
 
-- [`go-llm-agent`](../go-llm-agent/) — Core del chat
-- [`harness`](../harness/) — El otro proyecto principal de Victor
-- [`chat-bot`](../chat-bot/) — Servicio HTTP que provee las respuestas
+- [`rony-llm-agent`](../rony-llm-agent/) — Core del chat
+- [`harness`](../rony-harness/) — El otro proyecto principal de Victor
+- [`chat-bot`](../rony-chat-bot/) — Servicio HTTP que provee las respuestas
