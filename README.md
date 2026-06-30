@@ -87,7 +87,7 @@ export const POST: APIRoute = async ({ request }) => {
 
 #### 3.3 Crear React component
 
-Ver implementación completa en [`../rony-rony-chat-bot/docs/architecture.md`](../rony-rony-chat-bot/docs/architecture.md) §5.3. Copia manualmente el bloque de código TypeScript de esa sección a:
+Ver implementación completa en [`../rony-chat-bot/docs/architecture.md`](../rony-chat-bot/docs/architecture.md) §5.3. Copia manualmente el bloque de código TypeScript de esa sección a:
 
 ```bash
 mkdir -p src/components
@@ -165,7 +165,7 @@ Cuando definas el sistema visual, documéntalo aquí. Contenido típico:
 - Button (primary, secondary, ghost)
 - Card (con borde sutil, hover effect)
 - Tag (para tech stack)
-- ChatWidget (ver ../rony-rony-chat-bot/docs/architecture.md §5.3)
+- ChatWidget (ver ../rony-chat-bot/docs/architecture.md §5.3)
 
 ## Tokens (para Tailwind config)
 [ejemplo de extension del theme de Tailwind]
@@ -176,7 +176,7 @@ Cuando definas el sistema visual, documéntalo aquí. Contenido típico:
 - [Astro docs](https://docs.astro.build)
 - [Astro + React integration](https://docs.astro.build/en/guides/integrations-guide/react/)
 - [TailwindCSS con Astro](https://docs.astro.build/en/guides/integrations-guide/tailwind/)
-- [Chat-bot architecture doc](../rony-rony-chat-bot/docs/architecture.md) — Integración detallada
+- [Chat-bot architecture doc](../rony-chat-bot/docs/architecture.md) — Integración detallada
 
 ## 📄 Licencia
 
