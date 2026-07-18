@@ -1,189 +1,97 @@
 # Portfolio — Victor Hugo Vargas
 
-> 🌐 **Sitio web de portfolio personal + chat widget para responder preguntas sobre proyectos.**
+> 🌐 Sitio web de portfolio personal + chat widget para responder preguntas sobre proyectos.
 
-Este repositorio contiene el portfolio web de Victor Hugo Vargas. Actualmente está en HTML estático (versión MVP), con plan de migración a **Astro + React**.
+Portfolio de Victor Hugo Vargas. El sitio web está construido con **Astro + React + Tailwind**, e integra un chat widget que responde preguntas sobre los proyectos documentados.
 
-## 📦 Estado actual
+## 🧱 Stack
+
+- **[Astro 7](https://docs.astro.build)** — framework principal (islands architecture) con `@astrojs/node` standalone
+- **[React 19](https://react.dev)** — componentes interactivos (chat widget, hero interactivo)
+- **[Tailwind CSS 4](https://tailwindcss.com)** — utility-first styling via `@tailwindcss/vite`
+- **[Partytown](https://partytown.builder.io)** — integración registrada para offload de scripts third-party
+
+## 🚀 Quickstart
+
+```bash
+pnpm install
+pnpm dev          # http://localhost:4321
+```
+
+## 📦 Comandos
+
+| Comando            | Acción                                            |
+| :----------------- | :------------------------------------------------ |
+| `pnpm dev`         | Dev server en `localhost:4321`                    |
+| `pnpm build`       | Build de producción a `./dist/`                   |
+| `pnpm preview`     | Preview del build local antes de deploy           |
+| `pnpm astro`       | CLI commands (`astro add`, `astro check`, etc.)   |
+| `pnpm astro check` | TypeScript + Astro diagnostics                    |
+
+## 📁 Estructura
 
 ```
 portfolio/
-├── index.html              # Landing page (HTML estático)
-├── dashboard.html          # Dashboard alternativo
-├── example/                # Componentes de ejemplo
-└── README.md               # ← este archivo
+├── docs/
+│   ├── architecture.md       # Arquitectura técnica (routing, data flow, API)
+│   ├── DESIGN.md             # Sistema visual (paleta, tipografía, componentes)
+│   └── projects-schema.md    # Schema de proyectos MDX + contrato JSON para el chat-bot
+├── public/                   # Assets estáticos (imágenes, favicon)
+├── src/
+│   ├── content/projects/     # ← Proyectos como .mdx (single source of truth)
+│   ├── components/           # Componentes Astro y React
+│   ├── layouts/              # Layouts base
+│   ├── pages/
+│   │   ├── index.astro
+│   │   ├── proyectos/        # /proyectos + /proyectos/[slug]
+│   │   └── api/
+│   │       └── chat.ts       # Proxy → ../rony-chat-bot
+│   └── styles/
+├── astro.config.mjs
+└── archive/html-static/      # HTML estático viejo (referencia, no se importa)
 ```
 
-## 🎯 Roadmap de migración a Astro
+## 🧩 Integración con el chat
 
-### Fase 1: Setup Astro (1 día)
+El chat widget es una isla React que se hidrata con `client:load`. Por seguridad, **no llama directo al servicio de chat**: el request pasa por un proxy de Astro en `/api/chat`, que reenvía la request al servicio Go en [`../rony-chat-bot/`](../rony-chat-bot/).
+
+```
+[Browser]  →  [Astro /api/chat]  →  [rony-chat-bot :7331]
+                (proxy + streaming passthrough)
+```
+
+Configurar la URL del backend en `.env`:
 
 ```bash
-# Limpiar HTML actual (mantener como referencia)
-mkdir -p archive/html-static
-mv *.html archive/html-static/
-
-# Inicializar Astro con TypeScript estricto
-npm create astro@latest . -- \
-  --template minimal \
-  --typescript strict \
-  --add react \
-  --add tailwind \
-  --install
-
-# Estructura inicial
-src/
-├── pages/
-│   └── index.astro          # Reemplazo de index.html
-├── components/
-│   ├── Hero.astro
-│   ├── Projects.astro
-│   └── Chat.tsx              # ← React component del chat
-├── layouts/
-│   └── BaseLayout.astro
-└── styles/
-    └── global.css
+CHAT_BOT_URL=http://localhost:7331
 ```
 
-### Fase 2: Migrar contenido (1-2 días)
+Ver implementación detallada en [`docs/architecture.md`](./docs/architecture.md).
 
-- Copiar contenido de `archive/html-static/index.html` a `src/pages/index.astro`
-- Dividir en componentes reutilizables
-- Migrar estilos inline a Tailwind
-- Agregar imágenes optimizadas en `public/`
+## 📚 Contenido de proyectos
 
-### Fase 3: Integrar chat widget (1 día)
+Los proyectos del portfolio viven como archivos `.mdx` en `src/content/projects/`. Son la **única fuente de verdad** — el sitio renderiza desde ahí. **Importante**: el bot lee desde su propio `data/projects/*.md`, así que cada `.mdx` debe espejarse como `.md` en `../rony-chat-bot/data/projects/` (con el mismo kebab-case filename) y disparar `POST /api/reindex`.
 
-El chat se integra con [`../rony-chat-bot/`](../rony-chat-bot/) (otro proyecto del workspace).
+- Schema completo: [`docs/projects-schema.md`](./docs/projects-schema.md)
 
-#### 3.1 Instalar dependencia
+## 🚢 Deploy
 
-```bash
-# chat-bot es un servicio HTTP independiente, no se importa
-# Solo necesitamos configurar la URL del proxy
-echo 'CHAT_BOT_URL=http://localhost:7331' > .env
-```
+- **Frontend Astro** → Coolify (Docker container con `@astrojs/node` standalone)
+- **Chat-bot Go** ([`../rony-chat-bot/`](../rony-chat-bot/)) → Coolify (mismo setup)
+- **Dominio**: `victorvargas.dev`
 
-#### 3.2 Crear API route proxy
+## 🔗 Proyectos relacionados
 
-```typescript
-// src/pages/api/chat.ts
-import type { APIRoute } from 'astro';
+Este portfolio es parte de un workspace más grande:
 
-const CHAT_BOT_URL = import.meta.env.CHAT_BOT_URL || 'http://localhost:7331';
-
-export const POST: APIRoute = async ({ request }) => {
-    const body = await request.json();
-    const resp = await fetch(`${CHAT_BOT_URL}/api/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-    });
-    return new Response(resp.body, {
-        headers: { 'Content-Type': 'text/event-stream' },
-    });
-};
-```
-
-#### 3.3 Crear React component
-
-Ver implementación completa en [`../rony-chat-bot/docs/architecture.md`](../rony-chat-bot/docs/architecture.md) §5.3. Copia manualmente el bloque de código TypeScript de esa sección a:
-
-```bash
-mkdir -p src/components
-# Crear src/components/Chat.tsx con el contenido de §5.3 de rony-chat-bot/docs/architecture.md
-```
-
-#### 3.4 Usar en página
-
-```astro
----
-// src/pages/index.astro
-import BaseLayout from '../layouts/BaseLayout.astro';
-import Chat from '../components/Chat';
----
-
-<BaseLayout title="Victor Hugo Vargas">
-  <Hero />
-  <Projects />
-  <Chat client:load />   <!-- ← widget de chat -->
-</BaseLayout>
-```
-
-### Fase 4: Deployment (1 día)
-
-Recomendaciones:
-- **Vercel** o **Netlify** para el frontend Astro (gratis, CDN global)
-- **Fly.io** o **Railway** para el chat-bot Go (necesita always-on)
-- Dominio custom: `victorvargas.dev`
-
-```
-victorvargas.dev          → Astro en Vercel (HTTPS)
-api.victorvargas.dev      → chat-bot en Fly.io (HTTPS)
-                          (Astro hace proxy de /api/chat → api.victorvargas.dev)
-```
-
-## 🎨 Diseño visual
-
-> 📌 **Convención de nombres:**
-> - `docs/architecture.md` — Arquitectura técnica del código Astro/React (componentes, routing, data flow)
-> - `docs/DESIGN.md` — **Sistema de diseño visual** (paleta de colores, tipografía, spacing, componentes UI)
->
-> Estos son archivos separados porque en frontend significan cosas distintas.
-
-Consideraciones generales:
-- **Dark mode first** — devs prefieren dark
-- **TailwindCSS** — utility-first, rápido de iterar
-- **Mobile-first** — recruiters ven desde phones
-- **Accesibilidad** — WCAG 2.1 AA mínimo
-
-### `docs/DESIGN.md` (a crear cuando migres a Astro)
-
-Cuando definas el sistema visual, documéntalo aquí. Contenido típico:
-
-```markdown
-# Sistema de Diseño — Portfolio
-
-## Paleta de colores
-- Background primary: #0a0a0a (casi negro, dark mode)
-- Background secondary: #1a1a1a
-- Accent: #00d9ff (cyan eléctrico, brand color)
-- Text primary: #fafafa
-- Text secondary: #a1a1a1
-- Error: #ff5555
-- Success: #50fa7b
-
-## Tipografía
-- Sans-serif: Inter (UI)
-- Mono: JetBrains Mono (código)
-- Scale: 12, 14, 16, 20, 24, 32, 48px
-
-## Spacing scale (Tailwind)
-- 4, 8, 12, 16, 24, 32, 48, 64 px
-
-## Componentes base
-- Button (primary, secondary, ghost)
-- Card (con borde sutil, hover effect)
-- Tag (para tech stack)
-- ChatWidget (ver ../rony-chat-bot/docs/architecture.md §5.3)
-
-## Tokens (para Tailwind config)
-[ejemplo de extension del theme de Tailwind]
-```
-
-## 📚 Recursos
-
-- [Astro docs](https://docs.astro.build)
-- [Astro + React integration](https://docs.astro.build/en/guides/integrations-guide/react/)
-- [TailwindCSS con Astro](https://docs.astro.build/en/guides/integrations-guide/tailwind/)
-- [Chat-bot architecture doc](../rony-chat-bot/docs/architecture.md) — Integración detallada
+- [`../rony-llm-agent/`](../rony-llm-agent/) — Core del chat (LLM agent)
+- [`../rony-chat-bot/`](../rony-chat-bot/) — Servicio HTTP que provee las respuestas al chat
+- [`../rony-harness/`](../rony-harness/) — Otro proyecto principal de Victor
 
 ## 📄 Licencia
 
 MIT — ver [`LICENSE`](./LICENSE).
 
-## 🔗 Proyectos relacionados
+## 🔧 Notas para AI agents
 
-- [`rony-llm-agent`](../rony-llm-agent/) — Core del chat
-- [`harness`](../rony-harness/) — El otro proyecto principal de Victor
-- [`chat-bot`](../rony-chat-bot/) — Servicio HTTP que provee las respuestas
+Ver [`AGENTS.md`](./AGENTS.md) para convenciones de dev server, env vars, stack quirks, y doc index.
