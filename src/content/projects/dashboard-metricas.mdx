@@ -1,0 +1,27 @@
+---
+title:
+  es: "Dashboard de Métricas en Tiempo Real"
+  en: "Real-Time Metrics Dashboard"
+slug: "dashboard-metricas"
+stack: ["React", "WebSockets", "D3.js", "Go"]
+status: "live"
+demoUrl: "https://example.com"
+date: 2024-11-02
+summary:
+  es: "Visualización de métricas de plataforma con streaming por WebSocket y agregaciones server-side."
+  en: "Platform metrics dashboard streamed over WebSockets with server-side aggregations."
+---
+
+## Purpose
+
+Internal dashboard to monitor KPIs of a SaaS platform in real time: active users, hourly revenue, 5xx errors, p95 latency.
+
+## Technical decisions
+
+- **Go + WebSockets** for the stream: 5-second aggregations instead of pushing every raw event to the client.
+- **D3.js** for custom charts; we dropped Recharts because we needed smooth transitions between time windows.
+- **Backpressure on the client**: when the tab is in the background, the server reduces frequency to 1/min.
+
+## Challenges
+
+Avoiding memory leaks when switching time windows (1h, 24h, 7d). Implemented a ring buffer per series with explicit dispose of the Resize observers.

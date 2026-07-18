@@ -1,0 +1,96 @@
+---
+import { getCollection, render } from 'astro:content';
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export const prerender = true;
+
+export const getStaticPaths = (async () => {
+	const projects = await getCollection('projects');
+	return projects.map((project) => ({
+		params: { slug: project.data.slug },
+		props: { project },
+	}));
+}) satisfies GetStaticPaths;
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+
+const statusLabel: Record<string, { es: string; en: string }> = {
+	live: { es: 'En producción', en: 'Live' },
+	archived: { es: 'Archivado', en: 'Archived' },
+	wip: { es: 'En progreso', en: 'In progress' },
+};
+
+const locale = 'en' as const;
+---
+
+<BaseLayout
+	title={`${project.data.title[locale]} — Victor Hugo Vargas`}
+	description={project.data.summary?.[locale] ?? project.data.title[locale]}
+>
+	<main class="mx-auto max-w-3xl px-6 py-16">
+		<header class="mb-12 border-b border-neutral-800 pb-8">
+			<div class="mb-4 flex items-center gap-3">
+				<span class="rounded-full bg-bg-tertiary px-2.5 py-0.5 text-xs text-text-secondary">
+					{statusLabel[project.data.status][locale]}
+				</span>
+				<time class="text-sm text-text-secondary" datetime={project.data.date.toISOString()}>
+					{project.data.date.toLocaleDateString(locale, {
+						year: 'numeric',
+						month: 'long',
+					})}
+				</time>
+			</div>
+
+			<h1 class="text-4xl font-bold">{project.data.title[locale]}</h1>
+
+			{project.data.summary?.[locale] && (
+				<p class="mt-4 text-lg text-text-secondary">{project.data.summary[locale]}</p>
+			)}
+
+			<div class="mt-6 flex flex-wrap gap-2">
+				{
+					project.data.stack.map((tech) => (
+						<span class="rounded bg-bg-tertiary px-2 py-0.5 text-xs text-text-secondary">
+							{tech}
+						</span>
+					))
+				}
+			</div>
+
+			<div class="mt-6 flex gap-6 text-sm">
+				{
+					project.data.demoUrl && (
+						<a
+							href={project.data.demoUrl}
+							class="text-accent hover:underline"
+							rel="noopener noreferrer"
+							target="_blank"
+						>
+							Live demo ↗
+						</a>
+					)
+				}
+				{
+					project.data.repoUrl && (
+						<a
+							href={project.data.repoUrl}
+							class="text-accent hover:underline"
+							rel="noopener noreferrer"
+							target="_blank"
+						>
+							Source ↗
+						</a>
+					)
+				}
+			</div>
+		</header>
+
+		<article
+			class="prose prose-invert max-w-none prose-headings:text-text-primary prose-a:text-accent prose-code:text-accent"
+		>
+			<Content />
+		</article>
+	</main>
+</BaseLayout>

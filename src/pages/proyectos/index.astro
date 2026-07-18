@@ -1,0 +1,96 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export const prerender = true;
+
+const projects = (await getCollection('projects')).sort(
+	(a, b) => b.data.date.getTime() - a.data.date.getTime()
+);
+
+const statusLabel: Record<string, { es: string; en: string }> = {
+	live: { es: 'En producción', en: 'Live' },
+	archived: { es: 'Archivado', en: 'Archived' },
+	wip: { es: 'En progreso', en: 'In progress' },
+};
+
+const locale = 'en' as const;
+---
+
+<BaseLayout title="Projects — Victor Hugo Vargas">
+	<main class="mx-auto max-w-3xl px-6 py-16">
+		<header class="mb-12">
+			<h1 class="text-4xl font-bold">Projects</h1>
+			<p class="mt-2 text-text-secondary">
+				{projects.length} documented {projects.length === 1 ? 'project' : 'projects'}.
+			</p>
+		</header>
+
+		<ul class="space-y-6">
+			{
+				projects.map((project) => (
+					<li class="rounded-lg border border-neutral-800 bg-bg-secondary p-6 transition hover:border-accent/50">
+						<article class="flex flex-col gap-3">
+							<div class="flex items-start justify-between gap-4">
+								<h2 class="text-xl font-semibold">
+									<a
+										href={`/proyectos/${project.data.slug}`}
+										class="hover:text-accent"
+									>
+										{project.data.title[locale]}
+									</a>
+								</h2>
+								<span class="shrink-0 rounded-full bg-bg-tertiary px-2.5 py-0.5 text-xs text-text-secondary">
+									{statusLabel[project.data.status][locale]}
+								</span>
+							</div>
+
+							{project.data.summary?.[locale] && (
+								<p class="text-text-secondary">{project.data.summary[locale]}</p>
+							)}
+
+							<div class="flex flex-wrap gap-2">
+								{
+									project.data.stack.map((tech) => (
+										<span class="rounded bg-bg-tertiary px-2 py-0.5 text-xs text-text-secondary">
+											{tech}
+										</span>
+									))
+								}
+							</div>
+
+							<div class="flex flex-wrap gap-4 text-sm text-text-secondary">
+								<span>
+									{project.data.date.toLocaleDateString(locale, {
+										year: 'numeric',
+										month: 'long',
+									})}
+								</span>
+								{project.data.demoUrl && (
+									<a
+										href={project.data.demoUrl}
+										class="hover:text-accent"
+										rel="noopener noreferrer"
+										target="_blank"
+									>
+										Demo ↗
+									</a>
+								)}
+								{project.data.repoUrl && (
+									<a
+										href={project.data.repoUrl}
+										class="hover:text-accent"
+										rel="noopener noreferrer"
+										target="_blank"
+									>
+										Repo ↗
+									</a>
+								)}
+							</div>
+						</article>
+					</li>
+				))
+			}
+		</ul>
+	</main>
+</BaseLayout>

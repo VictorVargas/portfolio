@@ -1,0 +1,31 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import LandingExperience from '../components/LandingExperience.tsx';
+import type { ProjectData } from '../types/project';
+
+const entries = await getCollection('projects');
+
+const locale = 'en' as const;
+
+const projects: ProjectData[] = entries
+	.map((entry) => ({
+		slug: entry.data.slug,
+		title: entry.data.title[locale],
+		summary: entry.data.summary?.[locale] ?? '',
+		status: entry.data.status,
+		stack: entry.data.stack,
+		demoUrl: entry.data.demoUrl,
+		repoUrl: entry.data.repoUrl,
+		date: entry.data.date.toISOString(),
+		image: entry.data.image,
+	}))
+	.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+---
+
+<BaseLayout
+	title="Victor Hugo Vargas — Software Engineer"
+	description="Portfolio of Victor Hugo Vargas. Software engineer building web products and tooling."
+>
+	<LandingExperience client:load projects={projects} />
+</BaseLayout>

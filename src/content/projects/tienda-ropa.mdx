@@ -1,0 +1,28 @@
+---
+title:
+  es: "Tienda de Ropa Online"
+  en: "Online Clothing Store"
+slug: "tienda-ropa"
+stack: ["Next.js", "Stripe", "PostgreSQL"]
+status: "live"
+demoUrl: "https://example.com"
+repoUrl: "https://github.com/example/tienda-ropa"
+date: 2025-03-15
+summary:
+  es: "Plataforma e-commerce con checkout Stripe, panel admin y gestión de inventario."
+  en: "End-to-end e-commerce platform with Stripe checkout, admin dashboard and inventory management."
+---
+
+## Purpose
+
+Full e-commerce platform for an independent clothing brand. Catalogue, cart, checkout and an admin dashboard in a single product.
+
+## Technical decisions
+
+- **Next.js App Router** for SSR of the catalogue and SEO-friendly per-product routes.
+- **Stripe Checkout** in hosted mode to stay out of PCI scope; webhooks to confirm orders.
+- **PostgreSQL** with Prisma; the catalogue is served from an ISR cache and invalidated on-demand when stock changes.
+
+## Challenges
+
+Keeping inventory in sync between the admin dashboard and Stripe without race conditions. Solved with serializable transactions and an optimistic lock per SKU.
