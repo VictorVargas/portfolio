@@ -1,0 +1,27 @@
+---
+title:
+  es: "Bot de Telegram para Onboarding"
+  en: "Telegram Onboarding Bot"
+slug: "bot-onboarding"
+stack: ["Node.js", "PostgreSQL", "Telegram Bot API"]
+status: "archived"
+repoUrl: "https://github.com/example/bot-onboarding"
+date: 2024-04-20
+summary:
+  es: "Bot conversacional que guía a nuevos usuarios por el setup inicial de un producto B2B."
+  en: "Conversational bot that walks new users through the initial setup of a B2B product."
+---
+
+## Purpose
+
+Telegram assistant that reduces the time-to-first-value of a B2B product. Replaces an 8-step web form with a guided conversation.
+
+## Technical decisions
+
+- **Explicit state machine** in code: each step is a node with entry and exit conditions. Simpler than pulling in an FSM library.
+- **PostgreSQL** for persisting per-user state; conversations run for days, not minutes.
+- **Telegram inline keyboards** keep the interaction inside the app, no external links.
+
+## Challenges
+
+Handling Telegram timeouts without losing user state. Built a watchdog that re-sends the last message if the user hasn't responded in 24h, with an explicit "give up" option.
